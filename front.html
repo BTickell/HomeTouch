@@ -1,0 +1,225 @@
+<html>
+
+<head>
+    <title>IOTouch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.0/bootstrap3-typeahead.js"> </script>
+</head>
+
+<style>
+    * {
+        font-family: 'Lato'
+    }
+    path.link {
+        fill: none;
+        stroke: #666;
+        stroke-width: 1.5px;
+    }
+    circle {
+        fill: #ccc;
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+    text {
+        font-size: 0.75em;
+        pointer-events: none;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+    }
+    #canvas-svg {
+        z-index: 1;
+    }
+    #search {
+        margin-right: 100px;
+    }
+    #form {
+        position: fixed;
+        bottom: 10px;
+        z-index: 21;
+    }
+    h1 {
+        font-weight: 300;
+    }
+    aside.info {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        background-color: #FFF;
+        z-index: 20;
+        text-align: left;
+        float: right;
+        padding: 0;
+    }
+    .info-blurb {
+        padding: 2em 3em;
+    }
+    .subtitle {
+        width: 100%;
+        color: #000;
+        font-weight: 300;
+    }
+    .color-box {
+        width: 1em;
+        height: 1em;
+        display: inline-block;
+        float: none;
+        margin-top: 0.5em;
+    }
+    .color-label {
+        text-align: center;
+    }
+    .text-label {
+        font-size: 1em;
+        text-transform: uppercase;
+        line-height: 2em;
+    }
+    .color-label,
+    .text-label {
+        padding: 0;
+    }
+    aside ul {
+        padding: 0;
+        margin-bottom: 4em;
+    }
+    aside li,
+    aside ul {
+        list-style: none;
+        float: left;
+        width: 100%;
+    }
+    aside li {
+        padding: 1em 5em;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+    aside li + li {
+        border-top: none;
+    }
+    #focushref {
+        display: block;
+        text-align: center;
+    }
+</style>
+<script src="data.js"></script>
+
+<body ng-app="myApp" ng-controller="myCtrl">
+    <section class="col-lg-9">
+        <h1> {{active.fullName}} Preferences</h1>
+
+        <form action="modify" method='post' target='frame'>
+  <div class="form-group" ng-repeat='option in options'>
+    <label for="formGroupExampleInput">{{option[1]}}</label>
+    <input type="text" class="form-control" id="{{option[0]}}" name="{{option[0]}}" ng-model="active[option[0]]">
+  </div>
+    <button type="submit" class="btn btn-primary">Update Preferences</button>
+</form>
+
+<iframe name="frame" style="display:none"></iframe>
+
+
+    </section>
+    <aside class="col-lg-3 info">
+        <h1 class="title"> IOTouch </h1>
+
+        <div id="basefocus" ng-show="domainshow">
+
+            <div class="info-blurb">
+                <h3 class="subtitle">Users</h2>
+            </div>
+    <ul>
+        <li ng-repeat="user in users" ng-click="loadPerson(user[0])">
+        <div class="color-label col-md-2"><span class="color-box" style="background-color:rgb(218,165,32)"></span></div>
+        <div class="text-label col-md-10"><span>{{user[1].fullName}}</span></div
+>      </li>
+    </ul>
+
+
+            <div class="info-blurb">
+                <h3 class="subtitle">Currently Authenticated</h2>
+            </div>
+                <ul>
+                <li>
+                <div class="color-label col-md-2"><span class="color-box" style="background-color:rgb(218,165,32)"></span></div>
+                <div class="text-label col-md-10"><span>{{authName}}</span></div
+        >      </li>                </ul>
+            </div>
+
+
+            <div class="info-blurb">
+                <h3 class="subtitle">Active Settings</h2>
+            </div>
+                <ul>
+                <li ng-repeat='n in authenticated'>
+                <div class="color-label col-md-4">{{n[0]}}</div>
+
+                <div class="text-label col-md-8"><span>{{n[1]}}</span></div
+        >      </li>                </ul>
+            </div>
+
+    </aside>
+    <script>
+        var app = angular.module('myApp', []);
+
+        app.controller('myCtrl', function($scope,$http) {
+          $scope.domainshow = true;
+          $scope.authenticated = {};
+          $scope.authName = 'Dibya Ghosh';
+
+           $http.get("options")
+          .then(function(response) {
+            console.log(response);
+        $scope.options = response.data.data;
+          });
+
+            $http.get("users")
+          .then(function(response) {
+            console.log(response);
+        $scope.users = response.data.data;
+          });
+
+          $http.get("active")
+          .then(function(response) {
+            console.log(response);
+        $scope.active = response.data.data;
+          });
+
+          getCurrent = function(){
+          $http.get("current")
+          .then(function(response) {
+            console.log(response);
+        $scope.authenticated= response.data.data2;
+        $scope.authName = response.data.data.fullName;
+          });
+          window.setTimeout(getCurrent,1000);
+
+        }
+        getCurrent();
+
+          $scope.loadPerson = function(username){
+            $http.get("activate/"+username)
+          .then(function(response) {
+            
+          $http.get("active")
+          .then(function(response) {
+            console.log(response);
+        $scope.active = response.data.data;
+          });
+
+          });
+          }
+        });
+
+    </script>
+</body>
+
+</html>
