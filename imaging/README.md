@@ -1,19 +1,16 @@
 # Fingerprint recognition algorithms
-
+Developed by: rtshadow -> https://github.com/rtshadow/biometrics
 Active development year: 2012
-
+**Explains algorithms**
 ## Summary
 Some implementations of fingerprint recognition algorithms developed for Biometric Methods course at University of Wrocław, Poland.
+Developed by rtshadow.
 
 ## Usage
-
+**Need to write this**
 ### Prerequisites
 * python 2.7
 * python imaging library (PIL)
-
-### How to use it
-Simply do ```python filename.py --help``` to figure out how to execute ```filename``` algorithm
-
 ## Algorithms
 
 ### Poincaré Index
